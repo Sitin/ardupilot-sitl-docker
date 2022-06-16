@@ -32,11 +32,13 @@ services:
       - USE_DIR
       - NO_WIPE_EEPROM
       - SILENT_START
+      # X11
+      - DISPLAY
     ports:
       - "${SITL_MAVLINK_PORT}:5760"
     volumes:
       - ./sitl-start.sh:/ardupilot/sitl-start.sh
-      - ./.volumes/state:/ardupilot/.state
+      - ./.volumes/ardupilot/state:/home/ardupilot/.state
     env_file:
       - .env
   #
@@ -45,14 +47,22 @@ services:
   #
   # Connects to SITL and proxies UDP to `MAV_PROXY_PORT` (14550 by default)
   mavproxy:
-    image: asciich/mavproxy:latest
+    image: sitin/mavproxy:latest
     stdin_open: true
     tty: true
+    entrypoint:
+      - run-mavproxy
     command:
-      - run_mavproxy
       - --master=tcp:sitl:5760
       - "--out=udp:host.docker.internal:${MAV_PROXY_UDP_PORT}"
+      - --map
+      - --console
+    environment:
+      - DISPLAY
     env_file:
       - .env
+    volumes:
+      - ./.volumes/mavproxy/logs:/var/log/mavproxy
+      - ./.volumes/mavproxy/state:/mavproxy
     depends_on:
       - sitl

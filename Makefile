@@ -34,8 +34,10 @@ endif
 
 root_dir := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 volumes_dir := $(root_dir)/.volumes
-autotest_dir := $(volumes_dir)/autotest
-state_dir := $(volumes_dir)/state
+ardupilot_dir := $(volumes_dir)/ardupilot
+autotest_dir := $(volumes_dir)/ardupilot/autotest
+state_dir := $(volumes_dir)/ardupilot/state
+mavproxy_dir := $(volumes_dir)/mavproxy
 
 ###########################################################
 # Config
@@ -127,8 +129,9 @@ down: ## Shuts down dockerized application and removes docker resources
 fgfs: autotest-init fgfs-start ## Run Init FlightGear from scratch
 
 autotest-init: ## Initialise autotest data (necessary for FlightGear)
-	rm -rf $(autotest_dir)
+	rm -rf $(ardupilot_dir)
 	docker compose up --no-start --no-recreate sitl
+	mkdir -p "$(state_dir)"
 	docker compose cp sitl:/ardupilot/Tools/autotest $(autotest_dir)
 
 fgfs-start: ## Starts FlightGear
@@ -137,12 +140,18 @@ fgfs-start: ## Starts FlightGear
 ###########################################################
 # Cleaning
 ###########################################################
-.PHONY: clean clean-state clean-autotest
+.PHONY: clean clean-state clean-autotest clean-mavproxy clean-ardupilot
 
-clean: clean-state clean-autotest ## Cleans environment
+clean: down clean-state clean-autotest clean-mavproxy clean-ardupilot ## Cleans environment
 
 clean-state: ## Cleans simulation state
 	rm -rf $(state_dir)
 
-clean-autotest: ## Cleans
+clean-autotest: ## Cleans autotest files
 	rm -rf $(autotest_dir)
+
+clean-mavproxy: ## Cleans autotest files
+	rm -rf $(mavproxy_dir)
+
+clean-ardupilot: ## Cleans autotest files
+	rm -rf $(ardupilot_dir)
