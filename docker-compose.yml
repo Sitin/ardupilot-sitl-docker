@@ -1,0 +1,58 @@
+version: "3.9"
+services:
+  #
+  # ArduPilot SITL simulator (this image)
+  #
+  sitl:
+    image: sitin/ardupilot-sitl:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - ARDUPILOT_TAG
+        - USER=ardupilot
+    # Example additional parameters.
+    command:
+      - --mavlink-gimbal
+    # When these variables are set, SITL runner will create
+    # the corresponding arguments for `sim_vehicle.py`.
+    environment:
+      # Vehicle config
+      - INSTANCE
+      - VEHICLE
+      - FRAME
+      - LOCATION
+      - SPEEDUP
+      # Custom location
+      - LATITUDE
+      - LONGITUDE
+      - ALTITUDE
+      - DIRECTION
+      # General config
+      - USE_DIR
+      - NO_WIPE_EEPROM
+      - SILENT_START
+    ports:
+      - "${SITL_MAVLINK_PORT}:5760"
+    volumes:
+      - ./sitl-start.sh:/ardupilot/sitl-start.sh
+      - ./.volumes/state:/ardupilot/.state
+    env_file:
+      - .env
+  #
+  # MAVProxy
+  #   Startup options: https://ardupilot.org/mavproxy/docs/getting_started/starting.html
+  #
+  # Connects to SITL and proxies UDP to `MAV_PROXY_PORT` (14550 by default)
+  mavproxy:
+    image: asciich/mavproxy:latest
+    stdin_open: true
+    tty: true
+    command:
+      - run_mavproxy
+      - --master=tcp:sitl:5760
+      - "--out=udp:host.docker.internal:${MAV_PROXY_UDP_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - sitl
