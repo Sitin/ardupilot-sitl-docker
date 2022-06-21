@@ -34,6 +34,7 @@ be passed as well: `--custom-location=${LATITUDE},${LONGITUDE},${ALTITUDE},${DIR
 
 - `NO_WIPE_EEPROM`: set to 1 to skip vehicle memory wipe during start (excludes `--wipe-eeprom` parameter).
 - `SILENT_START`: set to `true` to skip debug messages.
+- `ALLOW_REBUILD`: set to 1 to allow rebuilding (otherwise `--no-rebuild` argument will be passed).
 
 ### State preservation
 

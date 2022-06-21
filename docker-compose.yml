@@ -32,6 +32,7 @@ services:
       - USE_DIR
       - NO_WIPE_EEPROM
       - SILENT_START
+      - ALLOW_REBUILD
       # X11
       - DISPLAY
     ports:

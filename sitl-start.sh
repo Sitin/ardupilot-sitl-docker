@@ -24,8 +24,17 @@ socat udp-listen:${proxy_port},reuseaddr,fork udp:"${docker_host}":${proxy_port}
 #------------------------------------------------------------------------------
 
 executable=/ardupilot/Tools/autotest/sim_vehicle.py
-declare -a default_params=("--no-rebuild" "--no-mavproxy" "--no-extra-ports")
+declare -a default_params=("--no-mavproxy" "--no-extra-ports")
 cmd_params=("${@}")
+
+#------------------------------------------------------------------------------
+# Build configuration
+#------------------------------------------------------------------------------
+
+if [ ! "${ALLOW_REBUILD}" = 1 ]; then
+  debug "Force skipping rebuilds."
+  default_params[${#default_params[@]}]="--no-rebuild"
+fi
 
 #------------------------------------------------------------------------------
 # State configuration
