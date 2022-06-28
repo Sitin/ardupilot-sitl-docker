@@ -8,8 +8,12 @@
 #------------------------------------------------------------------------------
 FROM ubuntu:focal
 
+ENV DEBIAN_FRONTEND noninteractive
+ENV DEBCONF_NONINTERACTIVE_SEEN true
+
 # Code fetch dependencies
-RUN apt-get update && apt-get install -y \
+RUN echo "UTC" > /etc/timezone && \
+    apt-get update && apt-get install -y \
     git \
     sudo \
     && rm -rf /var/lib/apt/lists/*
